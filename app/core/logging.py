@@ -23,7 +23,8 @@ request_id: ContextVar[str] = ContextVar(
 # 产生日志并输出
 class RequestIdFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        record.request_id = request_id.get()
+        if not hasattr(record, "request_id"):
+            record.request_id = request_id.get()
 
         # 继续输出日志
         return True
@@ -79,7 +80,7 @@ def setup_logging() -> None:
         handler.addFilter(request_id_filter)
 
 
-# 创建中间体
+# 创建中间件
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
@@ -90,6 +91,9 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
 
         # 把 current_id 存入 ContextVar，并保存 set() 返回的 token
         token = request_id.set(current_id)
+
+        # 同一个ID也保存到当前request
+        request.state.request_id = current_id
 
         try:
             response = await call_next(request)
