@@ -11,14 +11,16 @@
 - 本文件属 Router 层：只做依赖注入与响应封装，不承载业务逻辑、不在 Router 层写复杂 SQL（README 第 4 节）。
 - 探针必须轻量、快速返回：禁止阻塞式调用与重活（README 第 4 节）。
 
-TODO(阶段 1)：探活端点待实现。
 """
 
 from fastapi import APIRouter
 
 from app.common.schemas import ApiResponse
 
-router = APIRouter(prefix="/health")
+router = APIRouter(
+    prefix="/health",
+    include_in_schema=False,
+)
 
 
 @router.get("")
