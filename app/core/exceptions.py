@@ -61,7 +61,16 @@ async def unhandled_exception_handler(
     exc: Exception,
 ):
     response = ApiResponse.fail("服务器内部错误")
-    logger.exception("未处理的异常")
+
+    current_request_id = getattr(
+        request.state,
+        "request_id",
+        "-",
+    )
+    logger.exception(
+        "未处理的异常",
+        extra={"request_id": current_request_id},
+    )
 
     return JSONResponse(
         status_code=500,
