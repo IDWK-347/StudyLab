@@ -55,10 +55,7 @@ class Settings(BaseSettings):
     # =========================
     # 4. 字段级校验
     # =========================
-    @field_validator(
-        "database_url",
-        "postgres_password",
-    )
+    @field_validator("database_url", "postgres_password", "jwt_access_secret")
     @classmethod
     def reject_change_me(
         cls,
@@ -77,10 +74,18 @@ class Settings(BaseSettings):
         url = make_url(self.database_url)
 
         if url.password is None:
-            raise ValueError("密码没有")
+            raise ValueError("数据库连接串缺少密码")
         if url.password != self.postgres_password:
-            raise ValueError("密码找不到")
+            raise ValueError("数据库连接密码与配置密码不一致")
         return self
+
+    # =========================
+    # 6.JWT 认证配置
+    # =========================
+    jwt_access_secret: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
 
 
 @lru_cache
