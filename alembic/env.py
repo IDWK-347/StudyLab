@@ -1,33 +1,72 @@
 import asyncio
+import logging
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
+import app.modules
+import app.modules.auth.models
+import app.modules.users.models
+
+# Side effect import: register the model into Base.metadata; will migrate to model_registry.py later
 from alembic import context
 from app.core.config import get_settings
 from app.infrastructure.database.base import Base
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+logger = logging.getLogger("alembic.env")
+
+
+# MetaData used by Alembic when automatically generating migrations
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+# Find all models.py in the project and generate the set of modules that should be loaded
+modules_dir = Path(app.modules.__file__).parent
+
+expected_modules = {
+    f"app.modules.{path.parent.name}.models" for path in modules_dir.glob("*/models.py")
+}
+
+# Check the modules that are actually loaded
+loaded_modules = {name for name in expected_modules if name in sys.modules}
+
+# Check if there are any modules not loaded
+missing_modules = expected_modules - loaded_modules
+
+if missing_modules:
+    missing_list = "\n".join(f" - {name}" for name in sorted(missing_modules))
+
+    raise RuntimeError(
+        "以下模型模块尚未导入：\n"
+        f"{missing_list}\n"
+        "请在 alembic/env.py 的模型导入区补充导入"
+        "（将来统一放到 model_registry.py）。\n"
+        "否则 --autogenerate 会漏表，且不报错。"
+    )
+
+# Check if at least one table is registered
+if not target_metadata.tables:
+    raise RuntimeError(
+        "模型模块已导入，但 Base.metadata.tables 为空。\n"
+        "这与模型模块未导入是不同的问题："
+        "可能是 ORM 模型未正确继承 Base，"
+        "或者使用了不同的 MetaData，导致没有注册表。"
+    )
+
+# Verification passed, outputting the registered table list
+logger.info(
+    "已注册 %d 张表：%s",
+    len(target_metadata.tables),
+    ", ".join(sorted(target_metadata.tables)),
+)
 
 
 # 离线迁移
