@@ -21,6 +21,10 @@ from app.core.exceptions import UnauthorizedException
 
 password_hash = PasswordHash.recommended()
 
+# 密码策略：注册与 CLI 建管理员共用。12 是 NIST 最低线(8)与本项目无登录频控之间的折中；
+# 登录不校验此值，只在校验注册与改密时生效。
+MIN_PASSWORD_LENGTH=12
+
 
 def hash_password(plain) -> str:
     return password_hash.hash(plain)

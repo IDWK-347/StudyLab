@@ -58,6 +58,6 @@ class UserRefreshToken(Base):
     )
 
     __table_args__ = (
-        Index("idx_refresh_token_token_id", "token_id"),
+        Index("idx_refresh_token_token_id", "token_id", unique=True),
         Index("idx_refresh_token_user_active", "user_id", "revoked_at", "expires_at"),
     )
