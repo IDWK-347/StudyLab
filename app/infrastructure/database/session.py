@@ -3,19 +3,20 @@
 职责：用 DATABASE_URL 创建 async engine 与 async_sessionmaker，供依赖注入取用。
 
 约束：
+- engine 是模块级的，生命周期归 core/lifespan.py 的 shutdown dispose()，本模块不 dispose。
 - 连接池参数取自配置（DB_POOL_SIZE / DB_MAX_OVERFLOW / DB_POOL_TIMEOUT），不得写死。
 - 一律使用 AsyncSession；**不得**把它保存为全局单例会话。
 
 """
 
-from app.core.config import get_settings
-
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
-    AsyncEngine,
+    create_async_engine,
 )
+
+from app.core.config import get_settings
 
 settings = get_settings()
 

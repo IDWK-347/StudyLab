@@ -21,13 +21,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.common.enums import SystemRole, UserStatus
-from app.core.security import hash_password
+from app.core.security import MIN_PASSWORD_LENGTH, hash_password
 from app.infrastructure.database.session import (
     async_session_factory,
     engine,
 )
 from app.modules.users.models import User
-from app.core.security import MIN_PASSWORD_LENGTH
 
 
 async def create_admin(args: argparse.Namespace) -> None:
