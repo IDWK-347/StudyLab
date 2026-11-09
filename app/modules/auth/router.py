@@ -22,10 +22,9 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, Response, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Cookie, Response, status
 
-from app.api.dependencies import get_db
+from app.api.dependencies import DbSession
 from app.common.schemas import ApiResponse
 from app.core.config import get_settings
 from app.modules.auth import service
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/auth", tags=["认证"])
 
 COOKIE_NAME = "refresh_token"
 
-DbSession = Annotated[AsyncSession, Depends(get_db)]
 RefreshTokenCookie = Annotated[str | None, Cookie()]
 
 
