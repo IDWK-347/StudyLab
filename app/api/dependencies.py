@@ -21,7 +21,7 @@ from app.common.enums import SystemRole, UserStatus
 from app.core.exceptions import ForbiddenException, UnauthorizedException
 from app.core.security import decode_access_token
 from app.infrastructure.database.session import async_session_factory
-from app.modules.auth.repository import get_user_by_id
+from app.modules.users.repository import get_user_by_id
 from app.modules.users.schemas import CurrentUser
 
 

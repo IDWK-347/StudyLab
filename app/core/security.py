@@ -11,6 +11,7 @@
 - `jwt.decode` 必须**显式限定算法**为配置中的那一个——这是防算法混淆攻击的关键。
 """
 
+import re
 from datetime import UTC, datetime, timedelta
 
 import jwt
@@ -23,7 +24,8 @@ password_hash = PasswordHash.recommended()
 
 # 密码策略：注册与 CLI 建管理员共用。12 是 NIST 最低线(8)与本项目无登录频控之间的折中；
 # 登录不校验此值，只在校验注册与改密时生效。
-MIN_PASSWORD_LENGTH=12
+MIN_PASSWORD_LENGTH = 12
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_.-]{3,64}$")
 
 
 def hash_password(plain) -> str:

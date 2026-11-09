@@ -33,10 +33,6 @@ from app.core.security import create_access_token, hash_password, verify_passwor
 from app.modules.auth.repository import (
     create_refresh_token,
     get_refresh_token_by_token_id,
-    get_user_by_email,
-    get_user_by_id,
-    get_user_by_login_id,
-    get_user_by_username,
     revoke_refresh_token,
 )
 from app.modules.auth.schemas import (
@@ -48,6 +44,12 @@ from app.modules.auth.schemas import (
     UserBrief,
 )
 from app.modules.users.models import User
+from app.modules.users.repository import (
+    get_user_by_email,
+    get_user_by_id,
+    get_user_by_login_id,
+    get_user_by_username,
+)
 
 # 登录时若用户不存在，也跑一次哈希校验，使耗时不暴露「账号是否存在」。
 # 模块级只计算一次；这个哈希不可能匹配任何真实密码。
