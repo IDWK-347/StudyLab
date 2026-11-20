@@ -13,6 +13,7 @@ StudyLab 是一个**教学项目**——从零搭建的 RAG 知识库平台后�
 | 文件 | 作用 |
 | --- | --- |
 | `v1.0项目文档.md` | **V1.0 施工规格**（= 阶段 1 + 阶段 2 的 V1.0 部分）。**写 V1.0 代码时主要看它** |
+| `v1.1项目文档.md` | **V1.1 施工规格**（群组 CRUD、成员与邀请、群组级角色）。**写 V1.1 代码时主要看它** |
 | `README.md` | 项目全景与阶段 0–7 路线图；V1.1+ 的目标设计 |
 
 **按「想知道什么」查，不按文件查：**
@@ -100,12 +101,14 @@ StudyLab 是一个**教学项目**——从零搭建的 RAG 知识库平台后�
 **未实现（V1.0 范围之外）**
 
 - **V1.1**：群组 CRUD、成员管理与邀请、群组级角色、知识库与群组数据隔离
+  （四张群组表的枚举与 ORM 已落、迁移 `b7c1e4d92f30` 已应用并实测；`app/modules/groups/` 的
+  `repository` / `service` / `schemas` / `router` / `permissions` 仍只有 docstring）
 - 收尾事项：`backend/.git`（零提交空仓库，已决定移除；**用户要求不要碰 git**，需其本人执行）
 
 **环境事实**
 
 - postgres 容器**运行中**（`studylab-postgres`，healthy，宿主 5433 → 容器 5432），`vector` 扩展已装；
-  `public` 下有 `users`、`user_refresh_tokens`、`alembic_version` 三张表
+  `public` 下有 `users`、`user_refresh_tokens` 与 V1.1 的四张群组表，共 7 张表
 - **没有任何测试**，`tests/` 只有 `conftest.py`，`uv run pytest` 以 exit 5（no tests ran）退出
 
 ## 常用命令
@@ -125,7 +128,7 @@ uv run mypy app
 
 # 基础设施
 docker compose up -d postgres      # 宿主 5433 → 容器 5432
-uv run alembic upgrade head        # 当前 head = 99a8b653b8b7（含 token_id 唯一索引）
+uv run alembic upgrade head        # 当前 head = b7c1e4d92f30（四张群组表）
 
 # 测试
 uv run pytest
@@ -166,7 +169,7 @@ Router（参数解析 / 依赖注入 / 响应封装）
 | --- | --- |
 | `app/core/config.py` | 唯一配置来源。`get_settings()` 带 `lru_cache`；启动时校验：必填缺失、`CHANGE_ME` 占位值、连接串内密码与 `POSTGRES_PASSWORD` 是否一致 |
 | `app/common/schemas.py` | `ApiResponse[T]` —— 统一响应体 `{success, data, message}` |
-| `app/core/exceptions.py` | `AppException` 基类 + 4 个子类（400/401/403/404）。**只给基类注册一个处理器**（Starlette 按 MRO 查找，子类自动命中）；另有 422 覆盖与 500 兜底。经 `register_exception_handlers(app)` 挂载 |
+| `app/core/exceptions.py` | `AppException` 基类 + 5 个子类（400/401/403/404/409）。**只给基类注册一个处理器**（Starlette 按 MRO 查找，子类自动命中）；另有 422 覆盖与 500 兜底。经 `register_exception_handlers(app)` 挂载 |
 | `app/core/lifespan.py` | 资源初始化与释放。**已实现并挂载**：startup 探测数据库（`SELECT 1`，失败 fail-fast），shutdown `engine.dispose()` |
 | `app/core/security.py` | 密码哈希（Argon2id）+ access token 签发 / 解析（PyJWT）。**已实现**：不碰数据库（refresh token 归 `modules/auth`）；`PasswordHash` 模块级单例；解码失败抛 401 |
 | `app/core/logging.py` | 结构化日志 + 请求 ID（已实现） |

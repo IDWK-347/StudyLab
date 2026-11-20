@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 import app.modules
 import app.modules.auth.models
+import app.modules.groups.models
 import app.modules.users.models
 
 # Side effect import: register the model into Base.metadata; will migrate to model_registry.py later

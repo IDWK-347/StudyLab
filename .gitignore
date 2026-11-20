@@ -1,25 +1,51 @@
+# ==============================
 # Python
+# ==============================
 __pycache__/
 *.py[cod]
 .venv/
+venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
-# 前端（阶段 7 会用上）
-node_modules/
-dist/
-
-# 环境变量 —— 这条是重点
+# ==============================
+# Environment Variables
+# ==============================
 .env
 .env.*
 !.env.example
 
-# 数据卷 / 上传
-*.db
+# ==============================
+# Frontend
+# ==============================
+node_modules/
+dist/
+.vite/
+coverage/
 
-# IDE 本地设置（含个人数据库连接，不应入库）
+# ==============================
+# IDE
+# ==============================
 .vscode/
+.idea/
 
-# SQLTools / MySQL 插件残留（本项目不用 MySQL）
-MySQL.session.sql
+# ==============================
+# OS
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Local Generated Files
+# ==============================
+/.dsh-acl-report/
+
+# ==============================
+# Database and Logs
+# ==============================
+*.db
+*.sqlite3
+*.log

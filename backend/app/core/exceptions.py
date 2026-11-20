@@ -44,6 +44,11 @@ class NotFoundException(AppException):
         super().__init__(message, 404)
 
 
+class ConflictException(AppException):
+    def __init__(self, message: str):
+        super().__init__(message, 409)
+
+
 async def app_exception_handler(
     request: Request,
     exc: AppException,
